@@ -60,5 +60,27 @@ const fetchCoordsByIP = function(ip, callback) {
   });
 };
 
+/*
+Latitude	The latitude of the place to predict passes	lat	-80..80	degrees
+Longitude	The longitude of the place to predict passes	lon	-180..180	degrees
+*/
+const fetchISSFlyOverTimes = function(coords, callback) {
+  // use request to fetch IP address from JSON API
+  const flyOverURL = `https://iss-flyover.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`;
+  request(flyOverURL, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    if (response.statusCode !== 200) {
+      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+    //use same json assignment format as breedfetcher assignment
+    const passTimes = JSON.parse(body).response;
+    callback(null, passTimes);
+  });
+};
 
-module.exports = { fetchMyIP, fetchCoordsByIP };
+module.exports = { fetchMyIP, fetchCoordsByIP, fetchISSFlyOverTimes };
