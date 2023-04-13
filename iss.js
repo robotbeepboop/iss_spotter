@@ -33,4 +33,32 @@ const fetchMyIP = function(callback) {
   });
 };
 
-module.exports = { fetchMyIP };
+const fetchCoordsByIP = function(ip, callback) {
+  // use request to fetch IP address from JSON API
+  request(`http://ipwho.is/${ip}`, (error, response, body) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    if (response.statusCode !== 200) {
+      const msg = `Status Code ${response.statusCode} during geolocation search: ${body}`;
+      callback(Error(msg), null);
+      return;
+    }
+    //use same json assignment format as breedfetcher assignment
+    const geoLocation = JSON.parse(body);
+    if (!geoLocation.success) {
+      const message = `Success status was ${geoLocation.success}. Server message says: ${geoLocation.message} when fetching for IP ${geoLocation.ip}`;
+      callback(Error(message), null);
+      return;
+    }
+    const coords = {
+      latitude: geoLocation.latitude,
+      longitude: geoLocation.longitude
+    };
+    callback(null, coords);
+  });
+};
+
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
